@@ -1,8 +1,10 @@
 import requests
 from pyquery import PyQuery as pq
+import pymongo
+from pymongo import MongoClient
+import datetime
 
 dataSet = []
-
 def index_page(index_url):
     res = requests.get(index_url)
     res.encoding = 'big5' # res.encoding看文字編碼, 然後更改到big5(要看原網頁設定)
@@ -29,17 +31,34 @@ def lv1_page(url):
                 lv2_page(lv2Doc)
 
 def lv2_page(url):
+    client = MongoClient('127.0.0.1', 27017)
+    db = client['yahoo_buy_2']
+    collect = db['items']
     lv2Doc = pq(url)
     item1 = lv2Doc('#srp_result_list .item').items()
+    add_time = datetime.datetime.now()
+    number = 0
     for eachItem in item1:
         itemDict = {}
         itemDict['title'] = eachItem('.srp-pdtitle').text()
         itemDict['price'] = eachItem('.srp-listprice').text()
         dataSet.append(itemDict)
+        number += 1
+        item_dict = {
+            'number' : number,
+            'title' : itemDict['title'],
+            'price' : itemDict['price'],
+            'add_time' : add_time,
+        }
+        rs = collect.insert_one(item_dict)
+        object_id = rs.inserted_id
+        # return ('object_id: ' + str(object_id))
+        print (str(item_dict))
+
+        # print(itemDict['title'], itemDict['price'])
         # print(itemDict['title'])
         # print(itemDict['price'])
 
-
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
-for eachDataSet in dataSet:
-    print(eachDataSet)
+# for eachDataSet in dataSet:
+#     print(eachDataSet)
