@@ -65,9 +65,3 @@ def lv2_page(url):
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
 # for eachDataSet in dataSet:
 #     print(eachDataSet)
-# today = datetime.datetime.today().strftime('%Y-%m-%d')
-# client = MongoClient('127.0.0.1', 27017)
-# db = client['yahoo_buy']
-# item_name = 'item_%s' % today
-# collect = db[item_name]
-# print(today)
