@@ -31,9 +31,12 @@ def lv1_page(url):
                 lv2_page(lv2Doc)
 
 def lv2_page(url):
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
     client = MongoClient('127.0.0.1', 27017)
-    db = client['yahoo_buy_2']
-    collect = db['items']
+    db = client['yahoo_buy']
+    item_name = 'item_%s' % today
+    collect = db[item_name]
+    # collect = db['item']
     lv2Doc = pq(url)
     item1 = lv2Doc('#srp_result_list .item').items()
     add_time = datetime.datetime.now()
@@ -55,10 +58,16 @@ def lv2_page(url):
         # return ('object_id: ' + str(object_id))
         print (str(item_dict))
 
-        # print(itemDict['title'], itemDict['price'])
-        # print(itemDict['title'])
-        # print(itemDict['price'])
+    #     # print(itemDict['title'], itemDict['price'])
+    #     # print(itemDict['title'])
+    #     # print(itemDict['price'])
 
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
 # for eachDataSet in dataSet:
 #     print(eachDataSet)
+# today = datetime.datetime.today().strftime('%Y-%m-%d')
+# client = MongoClient('127.0.0.1', 27017)
+# db = client['yahoo_buy']
+# item_name = 'item_%s' % today
+# collect = db[item_name]
+# print(today)
