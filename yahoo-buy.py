@@ -5,15 +5,20 @@ from pymongo import MongoClient
 import datetime
 
 dataSet = []
+now_time = datetime.datetime.now()
 def index_page(index_url):
-    res = requests.get(index_url)
-    res.encoding = 'big5' # res.encoding看文字編碼, 然後更改到big5(要看原網頁設定)
-    doc = pq(res.text)
-    doc.make_links_absolute(base_url=res.url) # 變成絕對路徑
-    site_list1 = doc('.content .site-list').items()
-    for eachLv1Doc in site_list1:
-        lv1_Doc = eachLv1Doc('a').attr('href')
-        lv1_page(lv1_Doc)
+    try:
+        res = requests.get(index_url)
+        res.encoding = 'big5' # res.encoding看文字編碼, 然後更改到big5(要看原網頁設定)
+        doc = pq(res.text)
+        doc.make_links_absolute(base_url=res.url) # 變成絕對路徑
+        site_list1 = doc('.content .site-list').items()
+        for eachLv1Doc in site_list1:
+            lv1_Doc = eachLv1Doc('a').attr('href')
+            lv1_page(lv1_Doc)
+    except:
+        print('stop time:', now_time)
+
 
 def lv1_page(url):
         lv1Doc = pq(url)
@@ -31,6 +36,7 @@ def lv1_page(url):
                 lv2_page(lv2Doc)
 
 def lv2_page(url):
+    # now_time = datetime.datetime.now()
     today = datetime.datetime.today().strftime('%Y-%m-%d')
     client = MongoClient('127.0.0.1', 27017)
     db = client['yahoo_buy']
@@ -57,10 +63,7 @@ def lv2_page(url):
         object_id = rs.inserted_id
         # return ('object_id: ' + str(object_id))
         print (str(item_dict))
-
-    #     # print(itemDict['title'], itemDict['price'])
-    #     # print(itemDict['title'])
-    #     # print(itemDict['price'])
+    print('All items were insert')
 
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
 # for eachDataSet in dataSet:
