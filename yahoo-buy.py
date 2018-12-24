@@ -16,6 +16,10 @@ def index_page(index_url):
         for eachLv1Doc in site_list1:
             lv1_Doc = eachLv1Doc('a').attr('href')
             lv1_page(lv1_Doc)
+        print('All items were insert')
+        now_time_stop = datetime.datetime.now()
+        print('All items insert time:', now_time_stop)
+
     except:
         print('stop time:', now_time)
 
@@ -63,7 +67,6 @@ def lv2_page(url):
         object_id = rs.inserted_id
         # return ('object_id: ' + str(object_id))
         print (str(item_dict))
-    print('All items were insert')
 
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
 # for eachDataSet in dataSet:
