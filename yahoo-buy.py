@@ -3,10 +3,12 @@ from pyquery import PyQuery as pq
 import pymongo
 from pymongo import MongoClient
 import datetime
+import time
 
 dataSet = []
-now_time = datetime.datetime.now()
+now_start_time = datetime.datetime.now()
 def index_page(index_url):
+    start_time = time.time()
     try:
         res = requests.get(index_url)
         res.encoding = 'big5' # res.encoding看文字編碼, 然後更改到big5(要看原網頁設定)
@@ -17,11 +19,20 @@ def index_page(index_url):
             lv1_Doc = eachLv1Doc('a').attr('href')
             lv1_page(lv1_Doc)
         print('All items were insert')
-        now_time_stop = datetime.datetime.now()
-        print('All items insert time:', now_time_stop)
+        now_stop_time = datetime.datetime.now()
+        print('All items insert now_start_time:', now_start_time)
+        print('All items insert now_stop_time:', now_stop_time)
 
-    except:
-        print('stop time:', now_time)
+    except Exception as e:
+        print(e)
+        error_stop_time = datetime.datetime.now()
+        print('error_stop_time:', error_stop_time)
+    end_time  = time.time()
+    cost_time = end_time - start_time
+    m, s = divmod(cost_time, 60)
+    h, m = divmod(m, 60)
+    print("It cost %f sec" % (cost_time))
+    print("All time cost %d:%02d:%02d" % (h, m, s))
 
 
 def lv1_page(url):
@@ -46,7 +57,7 @@ def lv2_page(url):
     db = client['yahoo_buy']
     item_name = 'item_%s' % today
     collect = db[item_name]
-    # collect = db['item']
+    # collect = db['item_test']
     lv2Doc = pq(url)
     item1 = lv2Doc('#srp_result_list .item').items()
     add_time = datetime.datetime.now()
