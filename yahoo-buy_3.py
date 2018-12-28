@@ -1,33 +1,13 @@
 import requests
 from pyquery import PyQuery as pq
 import pymongo
-import pymysql
 from pymongo import MongoClient
 import datetime
 import time
+import multiprocessing as mp
 
 dataSet = []
 now_start_time = datetime.datetime.now()
-
-today = datetime.datetime.today().strftime('%Y-%m-%d')
-item_name = 'item_%s' % today
-
-try:
-    db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='curry30', charset='utf8')
-    cursor = db.cursor()
-    db_name = 'runrun'
-    db_create = "CREATE DATABASE IF NOT EXISTS `%s`" % (db_name)
-
-    exe_sql_create = cursor.execute(db_create)
-    cursor.execute("ALTER DATABASE `%s` CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci'" % db_name)
-
-    db = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='curry30',db=db_name, charset='utf8', autocommit=True)
-    cursor = db.cursor()
-    sql_create = 'CREATE TABLE IF NOT EXISTS `%s` (id int(11) NOT NULL AUTO_INCREMENT, number int(20), title varchar(100), price varchar(32), add_time varchar(32), PRIMARY KEY (id))' % item_name
-    exe_sql_create = cursor.execute(sql_create)
-except Exception as e:
-    pass
-
 def index_page(index_url):
     start_time = time.time()
     try:
@@ -72,21 +52,66 @@ def lv1_page(url):
                 lv2_page(lv2Doc)
 
 def lv2_page(url):
+    # # now_time = datetime.datetime.now()
+    # today = datetime.datetime.today().strftime('%Y-%m-%d')
+    # client = MongoClient('127.0.0.1', 27017)
+    # db = client['yahoo_buy']
+    # item_name = 'item_%s' % today
+    # collect = db[item_name]
+    # # collect = db['item_test']
     lv2Doc = pq(url)
     item1 = lv2Doc('#srp_result_list .item').items()
-    add_time = datetime.datetime.now()
-    number = 0
-
+    # add_time = datetime.datetime.now()
+    # number = 0
     for eachItem in item1:
         itemDict = {}
         itemDict['title'] = eachItem('.srp-pdtitle').text()
         itemDict['price'] = eachItem('.srp-listprice').text()
         dataSet.append(itemDict)
-        number += 1
-        sql = "insert into `%s` (number, title, price, add_time) values (%s, '%s', '%s', '%s')"  % (item_name, number, itemDict['title'], itemDict['price'], add_time)
-        cursor.execute(sql)
-        # db.commit()
-        print (sql)
+        # number += 1
+        # item_dict = {
+        #     'number' : number,
+        #     'title' : itemDict['title'],
+        #     'price' : itemDict['price'],
+        #     'add_time' : add_time,
+        # }
+        # rs = collect.insert_one(item_dict)
+        # object_id = rs.inserted_id
+        # return ('object_id: ' + str(object_id))
+        muticore(itemDict)
+        # print (str(item_dict))
+
+def muticore(number):
+    # now_time = datetime.datetime.now()
+    # today = datetime.datetime.today().strftime('%Y-%m-%d')
+    client = MongoClient('127.0.0.1', 27017)
+    db = client['yahoo_buy']
+    # item_name = 'item_%s' % today
+    # collect = db[item_name]
+    collect = db['item_test']
+    # pool = mp.Pool(processes=2) # processes設定用幾個核, 沒設就是全部平均
+    pool = mp.Pool()
+    res = pool.map(index_page, range(10))
+    add_time = datetime.datetime.now()
+    number = 0
+    for itemDict in res:
+        item_dict = {
+            'number' : number,
+            'title' : itemDict['title'],
+            'price' : itemDict['price'],
+            'add_time' : add_time,
+        }
+        rs = collect.insert_one(item_dict)
+        object_id = rs.inserted_id
+        # return ('object_id: ' + str(object_id))
+        print (str(item_dict))
+    # end_time  = time.time()
+    # cost_time = end_time - start_time
+    # m, s = divmod(cost_time, 60)
+    # h, m = divmod(m, 60)
+    # print("It cost %f sec" % (cost_time))
+    # print("All time cost %d:%02d:%02d" % (h, m, s))
+
 
 index_page('https://tw.buy.yahoo.com/help/helper.asp?p=sitemap')
 # for eachDataSet in dataSet:
