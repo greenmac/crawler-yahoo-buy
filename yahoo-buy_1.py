@@ -53,7 +53,7 @@ def lv1_page(url):
 def lv2_page(url):
     # now_time = datetime.datetime.now()
     today = datetime.datetime.today().strftime('%Y-%m-%d')
-    # client = MongoClient('127.0.0.1', 27017)
+    # client = MongoClient('127.0.0.1', 27017) # localhost
     client = MongoClient("mongodb://greenmac16:mac50787@ds257054.mlab.com:57054/yahoo_buy") # 如果你只想連本機端的server你可以忽略，遠端的url填入: mongodb://<user_name>:<user_password>@ds<xxxxxx>.mlab.com:<xxxxx>/<database_name>，請務必既的把腳括號的內容代換成自己的資料。
     db = client['yahoo_buy']
     item_name = 'item_%s' % today
